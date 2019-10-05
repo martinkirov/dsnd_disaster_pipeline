@@ -33,6 +33,15 @@ def load_data(database_filepath):
     return X, Y, Y.columns
 
 def tokenize(text):
+    """
+    tokenize is a custom tokenizer function that:
+    - removes punctuation
+    - removes english stopwords
+    - makes all the text lowercase
+    - lemmatizes the words
+    IN: string
+    OUT: list with stings
+    """
     tokenizer = RegexpTokenizer(r'\w+')
     stop_words = stopwords.words('english')
     # all lower case
@@ -50,16 +59,30 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    Set up a pipeline that:
+    - tokenizes the messages
+    - TFIDFs them
+    - sticks them in a random forrest classifier
+    IN: None
+    OUT: model object
+    """
     count_vect = CountVectorizer(tokenizer=tokenize)
+    tfidf = TfidfTransformer()
     forest_clf = RandomForestClassifier(n_estimators=10)
     pipeline = Pipeline([
                         ('vectorizer', count_vect),
-                        ('tfidf', TfidfTransformer()),
+                        ('tfidf', tfidf),
                         ('clf', MultiOutputClassifier(forest_clf))
                         ])
     return pipeline
 
 def evaluate_model(model, X_test, y_test, category_names):
+    """
+    Calculate the accuracy, precision, recall and f1 score for each category we are predicting.
+    IN: model, X_test (messages), y_test (target categories), category names
+    OUT: pandas dataframe with scores (uncomment) OR summary per-metric averages
+    """
     y_pred = model.predict(X_test)
     y_pred = pd.DataFrame(y_pred)
     y_pred.index = X_test.index
@@ -87,6 +110,11 @@ def evaluate_model(model, X_test, y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+    Save a pickle instance of the model.
+    IN: model object, path for the save
+    OUT: None
+    """
     file_object = open(model_filepath, 'wb')
     pickle.dump(model, file_object)
     file_object.close()
