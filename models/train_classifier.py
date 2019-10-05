@@ -21,7 +21,11 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def load_data(database_filepath):
-    #engine = create_engine('sqlite:///'+database_filepath)
+    """
+    This function loads the disaster response dataset from the sqlite database.
+    IN: database filepath (str)
+    OUT: Disaster Response Messages (X), Targets (Y), Category Names (Y.columns)
+    """
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql_table('df_table',engine)
     X = df['message']
